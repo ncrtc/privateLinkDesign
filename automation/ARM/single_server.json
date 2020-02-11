@@ -89,15 +89,19 @@
             "metadata": {
                 "description": "description"
             }
+        },
+        "existingVirtualNetworkResourceGroup": {
+           "type": "string",
+           "metadata": {
+                "description": "description"
+            }
         }
     },
     "variables": {
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
         "vmName": "[if(not(empty(parameters('vmName'))), parameters('vmName'), concat('vm-dns-', parameters('timestamp')))]",
-        "virtualNetworkName": "[if(not(empty(parameters('virtualNetworkName'))), parameters('virtualNetworkName'), 'vnet-mine')]",
-        "subnetName": "[if(not(empty(parameters('subnetName'))), parameters('subnetName'), 'snet-standalonedns')]",
         "nicName": "[concat('nic-', variables('vmName'))]",
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+        "subnetRef": "[resourceId(parameters('existingVirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'),  parameters('subnetName'))]",
     },
     "resources": [
         {
