@@ -91,8 +91,8 @@
             }
         },
         "existingVirtualNetworkResourceGroup": {
-           "type": "string",
-           "metadata": {
+            "type": "string",
+            "metadata": {
                 "description": "description"
             }
         }
@@ -181,34 +181,59 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2019-07-01",
-            "name": "[concat(variables('vmName'), '/Microsoft.Powershell.DSC')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-            ],
+            "name": "[concat(parameters('VMName'),'/OnboardToDSC')]",
+            "apiVersion": "2017-12-01",
             "location": "[parameters('location')]",
-            "tags": {
-                "AutomationAccountARMID": "/subscriptions/8b63fe10-d76a-4f8f-81ce-7a5a8b911779/resourceGroups/tjs-core-it-rg/providers/Microsoft.Automation/automationAccounts/tjsaa01"
-            },
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('VMName'))]"
+            ],
             "properties": {
-                "autoUpgradeMinorVersion": true,
-                "provisioningState": "Succeeded",
                 "publisher": "Microsoft.Powershell",
                 "type": "DSC",
-                "typeHandlerVersion": "2.76",
-                "settings": {
-                    "configurationArguments": {
-                        "RegistrationUrl": "https://cus-agentservice-prod-1.azure-automation.net/accounts/0157a681-4998-4582-b3f3-0572097716b5",
-                        "NodeConfigurationName": "StandaloneDnsConditionalForwarderConfig",
-                        "ConfigurationMode": "applyAndMonitor",
-                        "RebootNodeIfNeeded": true,
-                        "ActionAfterReboot": "continueConfiguration",
-                        "AllowModuleOverwrite": false,
-                        "ConfigurationModeFrequencyMins": 15,
-                        "RefreshFrequencyMins": 30
+                "typeHandlerVersion": "2.75",
+                "autoUpgradeMinorVersion": true,
+                "protectedSettings": {
+                    "Items": {
+                        "registrationKeyPrivate": "[listKeys(resourceId('Microsoft.Automation/automationAccounts/', parameters('automationAccountName')), '2018-01-15').Keys[0].value]"
                     }
                 },
-                "protectedSettings":{}
+                "settings": {
+                    "Properties": [
+                        {
+                            "Name": "RegistrationKey",
+                            "Value": {
+                                "UserName": "PLACEHOLDER_DONOTUSE",
+                                "Password": "PrivateSettingsRef:registrationKeyPrivate"
+                            },
+                            "TypeName": "System.Management.Automation.PSCredential"
+                        },
+                        {
+                            "Name": "RegistrationUrl",
+                            "Value": "[reference(concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))).registrationUrl]",
+                            "TypeName": "System.String"
+                        },
+                        {
+                            "Name": "NodeConfigurationName",
+                            "Value": "[parameters('nodeConfigurationName')]",
+                            "TypeName": "System.String"
+                        },
+                        {
+                            "Name": "ConfigurationMode",
+                            "Value": "ApplyandAutoCorrect",
+                            "TypeName": "System.String"
+                        },
+                        {
+                            "Name": "RebootNodeIfNeeded",
+                            "Value": true,
+                            "TypeName": "System.Boolean"
+                        },
+                        {
+                            "Name": "ActionAfterReboot",
+                            "Value": "ContinueConfiguration",
+                            "TypeName": "System.String"
+                        }
+                    ]
+                }
             }
         }
     ],
