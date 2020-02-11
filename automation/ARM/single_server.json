@@ -64,20 +64,6 @@
                 "description": "description"
             }
         },
-        "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "description"
-            }
-        },
-        "vnetCIDR": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "description"
-            }
-        },
         "vmName": {
             "type": "string",
             "defaultValue": "",
@@ -107,15 +93,11 @@
     },
     "variables": {
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
-        "addressPrefix": "[if(not(empty(parameters('vnetCIDR'))), parameters('vnetCIDR'), '10.0.0.0/16')]",
         "vmName": "[if(not(empty(parameters('vmName'))), parameters('vmName'), concat('vm-dns-', parameters('timestamp')))]",
         "virtualNetworkName": "[if(not(empty(parameters('virtualNetworkName'))), parameters('virtualNetworkName'), 'vnet-mine')]",
         "subnetName": "[if(not(empty(parameters('subnetName'))), parameters('subnetName'), 'snet-standalonedns')]",
-        "subnetPrefix": "[if(not(empty(parameters('subnetPrefix'))), parameters('subnetPrefix'), '10.0.0.0/24')]",
-        // "publicIPAddressName": "[concat('pip-', variables('vmName'))]",
         "nicName": "[concat('nic-', variables('vmName'))]",
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
-        "networkSecurityGroupName": "[concat('nsg-', variables('subnetName'))]"
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
     },
     "resources": [
         {
@@ -130,90 +112,11 @@
             "properties": {
             }
         },
-        /*{
-        "type": "Microsoft.Network/publicIPAddresses",
-        "apiVersion": "2018-11-01",
-        "name": "[variables('publicIPAddressName')]",
-        "location": "[parameters('location')]",
-        "properties": {
-          "publicIPAllocationMethod": "Dynamic",
-          "dnsSettings": {
-            "domainNameLabel": "[parameters('dnsLabelPrefix')]"
-          }
-        }
-      },*/
-        {
-            "comments": "Default Network Security Group for template",
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-08-01",
-            "name": "[variables('networkSecurityGroupName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "default-allow-3389",
-                        "properties": {
-                            "priority": 1000,
-                            "access": "Allow",
-                            "direction": "Inbound",
-                            "destinationPortRange": "3389",
-                            "protocol": "Tcp",
-                            "sourcePortRange": "*",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*"
-                        }
-                    },
-                    {
-                        "name": "allow-DNS",
-                        "properties": {
-                            "priority": 100,
-                            "access": "Allow",
-                            "direction": "Inbound",
-                            "destinationPortRange": "53",
-                            "protocol": "*",
-                            "sourcePortRange": "*",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2018-11-01",
-            "name": "[variables('virtualNetworkName')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-            ],
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[variables('addressPrefix')]"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "[variables('subnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('subnetPrefix')]",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-                            }
-                        }
-                    }
-                ]
-            }
-        },
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-11-01",
             "name": "[variables('nicName')]",
             "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
-            ],
             "properties": {
                 "ipConfigurations": [
                     {
@@ -292,7 +195,7 @@
                 "settings": {
                     "configurationArguments": {
                         "RegistrationUrl": "https://cus-agentservice-prod-1.azure-automation.net/accounts/0157a681-4998-4582-b3f3-0572097716b5",
-                        "NodeConfigurationName": "StandaloneDnsConditionalForwarderConfig.localhost",
+                        "NodeConfigurationName": "StandaloneDnsConditionalForwarderConfig",
                         "ConfigurationMode": "applyAndMonitor",
                         "RebootNodeIfNeeded": true,
                         "ActionAfterReboot": "continueConfiguration",
