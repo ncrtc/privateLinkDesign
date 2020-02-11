@@ -209,7 +209,7 @@
                         },
                         {
                             "Name": "RegistrationUrl",
-                            "Value": "[reference(resourceId('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))).registrationUrl]",
+                            "Value": "[reference(resourceId('Microsoft.Automation/automationAccounts/', parameters('automationAccountName')), '2018-01-15').registrationUrl]",
                             "TypeName": "System.String"
                         },
                         {
