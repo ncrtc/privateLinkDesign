@@ -1,5 +1,4 @@
-$virtualNetowrk = New-AzVirtualNetwork -Name 'vnet-dns-t-01' -ResourceGroupName 'rg-dns-core-01' -Location 'East US 2' -AddressPrefix '10.0.
-0.0/16'
+$virtualNetowrk = New-AzVirtualNetwork -Name 'vnet-dns-t-01' -ResourceGroupName 'rg-dns-core-01' -Location 'East US 2' -AddressPrefix '10.0.0.0/16'
 
 $subnetConfig = Add-AzVirtualNetworkSubnetConfig `
   -Name default `
