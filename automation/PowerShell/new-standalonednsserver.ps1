@@ -1,9 +1,18 @@
-$rg = "rg-dns-service-06"
-$aarg = "tjs-core-it-rg"
-$VMName = "vmdns06"
-$aaName = "tjsaa01"
-$VMSize = "Standard_D4s_v3"
-$LocationName = "EastUS2"
+[CmdletBinding()]
+param(
+    $rg_prefix = "rg-dns-service-",
+    $aarg = "rg-vse-central-services",
+    $VMName_prefix = "vmdns",
+    $aaName = "tjs-aa-01",
+    $VMSize = "Standard_D4s_v3",
+    $LocationName = "EastUS2"
+)
+
+$offset = (Get-Date | select -expand millisecond) * (Get-date | select -expand hour) * (get-date | select -ExpandProperty year) # generate a random sequence of characters
+
+$rg = $rg_prefix + $offset
+$VMName = $VMName_prefix + $offset
+
 $SubnetId = Get-AzVirtualNetwork -Name vnet-dns-t-01 -ResourceGroupName rg-dns-core-01 | Get-AzVirtualNetworkSubnetConfig -Name vms | select -ExpandProperty ID
 
 $Credential = New-Object System.Management.Automation.PSCredential ("tjs", (ConvertTo-SecureString "Insecure12341234!" -AsPlainText -Force));
